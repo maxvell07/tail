@@ -24,7 +24,7 @@ public class Launcher {
         private Integer c;
         @Option(names ="-n", description = "Read last <n> lines of input files")
         private Integer n;
-    }
+}
 
     @Parameters(index = "0..*" ,description = " the input files")
     private File[] inputFiles;
