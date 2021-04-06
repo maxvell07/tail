@@ -18,7 +18,7 @@ public class ReversedFileReader {
 
     public String readLastChars(InputStream in, int num) throws IOException{
         if(num < 0){
-            throw new IllegalArgumentException("Num must be non-negative");
+            throw new IllegalArgumentException("Num must be non-negative"); //число не может быть отрицательным
         }
         if(num == 0){
             return "";
@@ -34,8 +34,8 @@ public class ReversedFileReader {
                 }
                 chars.add((char) c);
             }
-            for(Character ch : chars){
-                res.append(ch);
+            for(int i = 0;i<chars.size();++i){
+                res.append(chars.get(i));
             }
         }
         return res.toString();
@@ -43,7 +43,7 @@ public class ReversedFileReader {
 
     public String readLastString(InputStream in, int num) throws IOException{
         if(num < 0){
-            throw new IllegalArgumentException("Num must be non-negative");
+            throw new IllegalArgumentException("Num must be non-negative"); //число не может быть отрицательным
         }
         if(num == 0){
              return "";
