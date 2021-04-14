@@ -8,7 +8,6 @@ import picocli.CommandLine.Option;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.NoSuchElementException;
 
 
 public class Launcher {
@@ -24,7 +23,7 @@ public class Launcher {
         private Integer c;
         @Option(names ="-n", description = "Read last <n> lines of input files")
         private Integer n;
-}
+    }
 
     @Parameters(index = "0..*" ,description = " the input files")
     private File[] inputFiles;
@@ -33,22 +32,22 @@ public class Launcher {
     private File outputFile;
 
     public static void main(String[] args) throws IOException {
-        if(args.length == 0){
-            throw new NoSuchElementException("No command found: expected to find \"tail\"");
-        }
-        if(!args[0].equals("tail")){
-            throw new IllegalArgumentException(args[0] + " command is not found");
-        }
-        new Launcher().launch(Arrays.copyOfRange(args,1,args.length));
+        new Launcher().launch(args);
     }
 
     public void launch(String[] args) throws IOException {
-        CommandLine.populateCommand(this,args);
-        ReversedFileReader rfr = new ReversedFileReader(inputFiles == null ? new File[0] : inputFiles, outputFile);
-        if(operation.c != null){
-            rfr.transferLastChars(operation.c);
-        } else{
-            rfr.transferLastStrings(operation.n == null ? DEFAULT_N_VALUE : operation.n);
+        try{
+            //new File(args[i]);
+            CommandLine.populateCommand(this,args);
+
+            ReversedFileReader rfr = new ReversedFileReader(inputFiles == null ? new File[0] : inputFiles, outputFile);
+            if(operation.c != null){
+                rfr.transfer(operation.c,'c');
+            } else{
+                rfr.transfer(operation.n == null ? DEFAULT_N_VALUE : operation.n,'n');
+            }
+        } catch (Exception e){
+            System.out.println(e.getMessage());
         }
     }
 }

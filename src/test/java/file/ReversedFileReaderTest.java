@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -27,7 +26,7 @@ public class ReversedFileReaderTest {
 
         ReversedFileReader rfr = new ReversedFileReader(null,null);
         int num = 17;
-        String res = rfr.readLastChars(new FileInputStream(txtFile),num);
+        String res = rfr.read(new FileInputStream(txtFile),num,'c');
 
         assertEquals(num, res.length());
         assertEquals("line;\n" + "Third Line.", res);
@@ -40,7 +39,7 @@ public class ReversedFileReaderTest {
 
         ReversedFileReader rfr = new ReversedFileReader(null,null);
         int num = 2;
-        String res = rfr.readLastString(new FileInputStream(txtFile),num);
+        String res = rfr.read(new FileInputStream(txtFile),num,'n');
 
         assertEquals("Second line;\n"+"Third Line.", res);
 
@@ -52,10 +51,10 @@ public class ReversedFileReaderTest {
         ReversedFileReader rfr = new ReversedFileReader(null,null);
 
         int num = 2;
-        String resStr = rfr.readLastString(new FileInputStream(txtFile),num);
+        String resStr = rfr.read(new FileInputStream(txtFile),num,'n');
         assertTrue(resStr.isEmpty());
 
-        String resChars = rfr.readLastChars(new FileInputStream(txtFile),num);
+        String resChars = rfr.read(new FileInputStream(txtFile),num,'c');
         assertEquals(0, resChars.length());
         assertTrue(resChars.isEmpty());
     }
@@ -67,14 +66,14 @@ public class ReversedFileReaderTest {
         ReversedFileReader rfr = new ReversedFileReader(new File[]{txtFile},out);
 
         int strNum = 2;
-        rfr.transferLastStrings(strNum);
-        String strRes = rfr.readLastString(new FileInputStream(out),strNum);
+        rfr.transfer(strNum,'n');
+        String strRes = rfr.read(new FileInputStream(out),strNum,'n');
 
         assertEquals("Second line;\n"+"Third Line.", strRes);
 
         int charNum = 17;
-        rfr.transferLastChars(charNum);
-        String charsRes = rfr.readLastChars(new FileInputStream(out),charNum);
+        rfr.transfer(charNum,'c');
+        String charsRes = rfr.read(new FileInputStream(out),charNum,'c');
 
         assertEquals(charNum, charsRes.length());
         assertEquals("line;\n"+"Third Line.", charsRes);
@@ -90,20 +89,20 @@ public class ReversedFileReaderTest {
         ReversedFileReader rfr = new ReversedFileReader(new File[]{txtFile1,txtFile2},out);
 
         int strNum = 1;
-        rfr.transferLastStrings(strNum);
+        rfr.transfer(strNum,'n');
         String expectedStr = txtFile1.getAbsolutePath().toString() + "\n" + "Third Line.\n" +
                 txtFile2.getAbsolutePath() + "\n" + "Sixth line.";
-        String strRes = rfr.readLastString(new FileInputStream(out),strNum*4);
+        String strRes = rfr.read(new FileInputStream(out),strNum*4,'n');
 
         assertEquals(expectedStr, strRes);
 
         int charNum = 20;
-        rfr.transferLastChars(charNum);
+        rfr.transfer(charNum,'c');
         String file1Path = txtFile1.getAbsolutePath().toString();
         String file2Path = txtFile2.getAbsolutePath().toString();
         String expectedChar = file1Path + "\n" + "nd line;\nThird Line.\n" +
                  file2Path + "\n" + "th line;\nSixth line.";
-        String charsRes = rfr.readLastString(new FileInputStream(out),6);
+        String charsRes = rfr.read(new FileInputStream(out),6,'n');
 
         assertEquals(expectedChar, charsRes);
 

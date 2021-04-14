@@ -15,55 +15,35 @@ public class ReversedFileReader {
         this.outFile = outFile;
     }
 
+    private String readElement(BufferedReader buff, char flag) throws IOException{
+        if(flag == 'c'){
+            int c = buff.read();
+            return c == -1 ? null : String.valueOf((char) c);
+        }
+        return buff.readLine();
+    }
 
-    public String readLastChars(InputStream in, int num) throws IOException{
+    public String read(InputStream in, int num, char flag) throws IOException{
         if(num < 0){
-            throw new IllegalArgumentException("Num must be non-negative"); //число не может быть отрицательным
+            throw new IllegalArgumentException("Num must be non-negative");
         }
         if(num == 0){
             return "";
         }
-        StringBuilder res = new StringBuilder();
         try(BufferedReader buffIn = new BufferedReader(new InputStreamReader(in))) {
-            LinkedList<Character> chars = new LinkedList<>();
-            int c;
-            // Если получаем -1, значит достигли конца файла
-            while((c = buffIn.read()) != -1){
-                if(chars.size() >= num){
-                    chars.remove();
+            LinkedList<String> lastElements = new LinkedList<>();
+            String s;
+            // Если получаем null, значит достигли конца файла
+            while((s = readElement(buffIn,flag)) != null ){
+                if(lastElements.size() >= num){
+                    lastElements.remove();
                 }
-                chars.add((char) c);
+                lastElements.add(s);
             }
-            for(int i = 0;i<chars.size();++i){
-                res.append(chars.get(i));
-            }
+            return String.join(flag == 'c'? "" : "\n",lastElements);
         }
-        return res.toString();
     }
 
-    public String readLastString(InputStream in, int num) throws IOException{
-        if(num < 0){
-            throw new IllegalArgumentException("Num must be non-negative"); //число не может быть отрицательным
-        }
-        if(num == 0){
-             return "";
-        }
-        try(BufferedReader buffIn = new BufferedReader(new InputStreamReader(in))) {
-            LinkedList<String> strings = new LinkedList<>();
-            String s;
-            //считываем строку из файла/консоли. Если строка == null, тогда достигли конца файла
-            while((s = buffIn.readLine()) != null){
-                // Если в списке закончилось место, тогда удаляю первый элемент
-                if(strings.size() >= num){
-                    strings.remove();
-                }
-                // вставляю новый элемент
-                strings.add(s);
-            }
-            // соединяю строки из списка, вставляя между ними символ перехода на новую строку
-            return String.join("\n", strings);
-        }
-    }
 
     public void write(String s, File f) throws IOException {
         if(f == null){
@@ -76,42 +56,25 @@ public class ReversedFileReader {
         }
     }
 
-    public void transferLastChars(int n) throws IOException{
+    //flag = 'c' - chars
+    //flag = 'n' - strings
+    public void transfer(int n, char flag) throws IOException{
         //список строк на вывод
         List<String> strList = new ArrayList<>();
         if(files.length == 0){
-            strList.add(readLastChars(System.in,n));
+            strList.add(read(System.in,n,flag));
         }
         if(files.length == 1){
-            strList.add(readLastChars(new FileInputStream(files[0]),n));
+            strList.add(read(new FileInputStream(files[0]),n,flag));
         }
         if(files.length >= 2){
             for(File f : files){
                 strList.add(f.getAbsolutePath());
-                String lastStrings = readLastChars(new FileInputStream(f),n);
+                String lastStrings = read(new FileInputStream(f),n,flag);
                 strList.add(lastStrings);
             }
         }
         write(String.join("\n",strList),outFile);
 
     }
-
-    public void transferLastStrings(int n) throws IOException{
-        List<String> strList = new ArrayList<>();
-        if(files.length == 0){
-            strList.add(readLastString(System.in,n));
-        }
-        if(files.length == 1){
-            strList.add(readLastString(new FileInputStream(files[0]),n));
-        }
-        if(files.length >= 2){
-            for(File f : files){
-                strList.add(f.getAbsolutePath());
-                String lastStrings = readLastString(new FileInputStream(f),n);
-                strList.add(lastStrings);
-            }
-        }
-        write(String.join("\n",strList),outFile);
-    }
-
 }
